@@ -2,11 +2,12 @@
 #include<string.h>
 #include<ctype.h>
 #include "cabeceras.h"
-// chat realmente ha dicho chachi piruli
+
 #define LONGITUD_COMANDO 100
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
 int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argumento2);
+/*
 void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup);
 int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
               char *nombre);
@@ -25,7 +26,7 @@ void Grabarinodosydirectorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos
 void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
 void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
-
+*/
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
@@ -51,16 +52,18 @@ int main()
      fent = fopen("particion.bin","r+b");
      fread(&datosfich, SIZE_BLOQUE, MAX_BLOQUES_PARTICION, fent);    
      
-     
+     /*
      memcpy(&ext_superblock,(EXT_SIMPLE_SUPERBLOCK *)&datosfich[0], SIZE_BLOQUE);
      memcpy(&directorio,(EXT_ENTRADA_DIR *)&datosfich[3], SIZE_BLOQUE);
      memcpy(&ext_bytemaps,(EXT_BLQ_INODOS *)&datosfich[1], SIZE_BLOQUE);
      memcpy(&ext_blq_inodos,(EXT_BLQ_INODOS *)&datosfich[2], SIZE_BLOQUE);
      memcpy(&memdatos,(EXT_DATOS *)&datosfich[4],MAX_BLOQUES_DATOS*SIZE_BLOQUE);
-     
+     */
+    int apagado=-1;
      // Buce de tratamiento de comandos
-     for (;;){
-		 do {
+     while(apagado!=0){
+		 
+       /*do {
 		 printf (">> ");
 		 fflush(stdin);
 		 fgets(comando, LONGITUD_COMANDO, stdin);
@@ -68,21 +71,40 @@ int main()
 	     if (strcmp(orden,"dir")==0) {
             Directorio(&directorio,&ext_blq_inodos);
             continue;
-            }
+            }*/
+
+           printf("inserte comando: ");
+           fgets(orden,sizeof(orden),stdin);
+           printf("has introducido: %s\n",orden);
+
          //...
          // Escritura de metadatos en comandos rename, remove, copy     
-         Grabarinodosydirectorio(&directorio,&ext_blq_inodos,fent);
-         GrabarByteMaps(&ext_bytemaps,fent);
-         GrabarSuperBloque(&ext_superblock,fent);
-         if (grabardatos)
-           GrabarDatos(&memdatos,fent);
-         grabardatos = 0;
+         //Grabarinodosydirectorio(&directorio,&ext_blq_inodos,fent);
+         //GrabarByteMaps(&ext_bytemaps,fent);
+         //GrabarSuperBloque(&ext_superblock,fent);
+         //if (grabardatos)
+           //GrabarDatos(&memdatos,fent);
+         //grabardatos = 0;
          //Si el comando es salir se habrán escrito todos los metadatos
          //faltan los datos y cerrar
          if (strcmp(orden,"salir")==0){
-            GrabarDatos(&memdatos,fent);
+            //GrabarDatos(&memdatos,fent);
+            printf("Adios\n");
             fclose(fent);
+            apagado=1;
+            //close();
             return 0;
          }
      }
 }
+
+// ajustar el for 
+// hacer primero las funciones de salir
+// y la de si el usuario pone otra cosa que no haya programado le salte un error (comando desconocido)
+// comando ayuda(help) para saber que comandos puede poner el usuario 
+// comando info 
+// comando bytemaps 
+// comando dir 
+// comando rename 
+//comando cat (imprimir)
+//comando remove
