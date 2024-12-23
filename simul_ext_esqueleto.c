@@ -75,6 +75,8 @@ int main()
 
            printf(">> ");
            fgets(orden,sizeof(orden),stdin);
+           orden[strcspn(orden,"\n")]='\0';
+
            //printf("has introducido: %s\n",orden);
 
          //...
@@ -87,15 +89,64 @@ int main()
          //grabardatos = 0;
          //Si el comando es salir se habrán escrito todos los metadatos
          //faltan los datos y cerrar
+
+         // todas las ordenes van a tener esta estructura
+         if (strcmp(orden,"info")==0){
+            
+            printf("has introducido info\n");
+            continue;  
+         } 
+         if (strcmp(orden,"bytemaps")==0){
+            
+            printf("has introducido bytemaps\n");
+            continue;  
+         }
+         if (strcmp(orden,"cat")==0){
+            
+            printf("has introducido cat (imprimir)\n");
+            continue;  
+         }
+         if (strcmp(orden,"help")==0){
+            
+            printf("Has introducido ayuda:\nPuedes poner los siguientes comandos:\n"
+            "dir: para ver los directorios\nbytemaps: para ver los bytemaps\n"
+            "rename: para renombrar un fichero\nremove: para eliminar un fichero\n"
+            "info: para saber la info de los ficheros\ncopy: para copiar un archivo en otro\n"
+            "salir: para abandonar el programa\n");
+            continue;  
+         }
+         if (strcmp(orden,"rename")==0){
+            
+            printf("has introducido rename\n");
+            continue;  
+         }
+         if (strcmp(orden,"copy")==0){
+            
+            printf("has introducido copyn");
+            continue;  
+         }
+         if (strcmp(orden,"remove")==0){
+            
+            printf("has introducido remove\n");
+            continue;  
+         }
+
+         if (strcmp(orden,"dir")==0){
+            
+            printf("has introducido dir\n");
+            continue;  
+         }
          if (strcmp(orden,"salir")==0){
             //GrabarDatos(&memdatos,fent);
             printf("Adios\n");
             fclose(fent);
             apagado=1;
             //close();
-            return 0;
+            continue;  
          }
+         printf("ERROR: comando ilegal [bytemaps,copy,dir,info,cat,rename,remove,salir]\n");
      }
+     return 0;
 }
 
 // ajustar el for 
