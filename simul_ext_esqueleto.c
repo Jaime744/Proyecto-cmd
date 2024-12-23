@@ -2,7 +2,7 @@
 #include<string.h>
 #include<ctype.h>
 #include "cabeceras.h"
-
+// chat realmente ha dicho chachi piruli
 #define LONGITUD_COMANDO 100
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
