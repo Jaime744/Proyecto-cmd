@@ -1,3 +1,8 @@
+#include<stdio.h>
+#include<string.h>
+#include<ctype.h>
+#include "cabeceras.h"
+
 #define SIZE_BLOQUE 512
 #define MAX_INODOS 24
 #define MAX_FICHEROS 20
