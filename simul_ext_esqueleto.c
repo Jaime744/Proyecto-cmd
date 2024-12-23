@@ -30,7 +30,7 @@ void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
-	 char *orden[LONGITUD_COMANDO];
+	 char orden[LONGITUD_COMANDO];
 	 char *argumento1[LONGITUD_COMANDO];
 	 char *argumento2[LONGITUD_COMANDO];
 	 
@@ -61,7 +61,7 @@ int main()
      */
     int apagado=-1;
      // Buce de tratamiento de comandos
-     while(apagado!=0){
+     while(apagado!=1){
 		 
        /*do {
 		 printf (">> ");
@@ -73,9 +73,9 @@ int main()
             continue;
             }*/
 
-           printf("inserte comando: ");
+           printf(">> ");
            fgets(orden,sizeof(orden),stdin);
-           printf("has introducido: %s\n",orden);
+           //printf("has introducido: %s\n",orden);
 
          //...
          // Escritura de metadatos en comandos rename, remove, copy     
