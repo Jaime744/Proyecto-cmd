@@ -9,8 +9,7 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
 int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argumento2);
 /*
 void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup);
-int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-              char *nombre);
+
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
               char *nombreantiguo, char *nombrenuevo);
@@ -28,6 +27,8 @@ void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
 */
 int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
              EXT_DATOS *memdatos, char *nombre);
+int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
+              char *nombre);
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
@@ -93,8 +94,8 @@ int main()
 
          // todas las ordenes van a tener esta estructura
          if (strcmp(orden,"info")==0){
-            
-            printf("has introducido info\n");
+            Printbytemaps(&ext_bytemaps);
+           // printf("has introducido info\n");
             continue;  
          } 
          if (strcmp(orden,"bytemaps")==0){
@@ -162,11 +163,50 @@ int main()
 //comando cat (imprimir)
 //comando remove
 
+void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
+   int contadorBits=0;
+   printf("Inodos: ");
+   for(int i=0;contadorBits<25;i++){
+      for(int j=0;contadorBits<25 && j<8;j++){
+         if((ext_bytemaps->bmap_inodos[i]&(1>>j))!=0){
+            printf("1");
+         }else{
+            printf("0");
+         }
+         contadorBits++;
+      }
+   }
+   printf("\n");
+   contadorBits=0;
+
+   printf("Bloques[0-25]: ");
+   for(int i=0;contadorBits<25;i++){
+      for(int j=0;contadorBits<25 && j<8;j++){
+         if((ext_bytemaps->bmap_bloques[i]&(1>>j))!=0){
+            printf("1");
+         }else{
+            printf("0");
+         }
+         contadorBits++;
+      }
+   }
+   printf("\n");
+}
+
+
+
+
+
+
+
+
+/*
+
 int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre){
    int i,j;
    unsigned int blnumber;
    EXT_DATOS datosFichero[MAX_NUMS_BLOQUE_INODO];
-   i= buscaFich(directorio,inodos,nombre);
+   i= BuscaFich(directorio,inodos,nombre);
    if(i>0){
       j=0;
       do{
@@ -180,3 +220,4 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memd
    }
    return -1;// codigo error no se encuentra
 }
+*/
