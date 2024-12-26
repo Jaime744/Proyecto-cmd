@@ -29,7 +29,7 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
              EXT_DATOS *memdatos, char *nombre);
 int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
               char *nombre);
-void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE inodo);
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
@@ -45,6 +45,7 @@ int main()
      EXT_ENTRADA_DIR directorio[MAX_FICHEROS];
      EXT_DATOS memdatos[MAX_BLOQUES_DATOS];
      EXT_DATOS datosfich[MAX_BLOQUES_PARTICION];
+     EXT_SIMPLE_INODE inodo;
      int entradadir;
      int grabardatos;
      FILE *fent;
@@ -138,7 +139,7 @@ int main()
          if (strcmp(orden,"dir")==0){
             
             //printf("has introducido dir\n");
-            Directorio(directorio,&ext_blq_inodos);
+            Directorio(directorio,&ext_blq_inodos,&inodo);
             continue;  
          }
          if (strcmp(orden,"salir")==0){
@@ -165,12 +166,12 @@ int main()
 //comando cat (imprimir)
 //comando remove
 
-void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos){
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE *inodo ){ // tengo que poner la referencia al struct el EXT_SIMPLE_INODE porque es donde esta el size 
 
-   for(int i=0;MAX_FICHEROS;i++){
-      if(directorio[i].dir_nfich[0] != '\0' && directorio[i].dir_inodo != -1) {
+   for(int i=0;i<MAX_FICHEROS;i++){
+      if(directorio[i].dir_nfich[0] != '\0' && directorio[i].dir_inodo != -1){
          int indice = directorio[i].dir_inodo;
-         printf("%s  tamaño: %d inodos: %d ",directorio[i].dir_nfich,inodos[indice].blq_inodos,indice);
+         printf("%s  tamaño: %d inodos: %d ",directorio[i].dir_nfich,inodo[indice].size_fichero,indice);
       }
    }
 }
