@@ -14,8 +14,7 @@ int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
               char *nombreantiguo, char *nombrenuevo);
-int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-             EXT_DATOS *memdatos, char *nombre);
+
 int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
            EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,
            char *nombre,  FILE *fich);
@@ -27,6 +26,8 @@ void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
 void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
 */
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
+             EXT_DATOS *memdatos, char *nombre);
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
@@ -104,6 +105,7 @@ int main()
          if (strcmp(orden,"cat")==0){
             
             printf("has introducido cat (imprimir)\n");
+            //Imprimir()
             continue;  
          }
          if (strcmp(orden,"help")==0){
@@ -149,13 +151,32 @@ int main()
      return 0;
 }
 
-// ajustar el for 
-// hacer primero las funciones de salir
-// y la de si el usuario pone otra cosa que no haya programado le salte un error (comando desconocido)
-// comando ayuda(help) para saber que comandos puede poner el usuario 
+// ajustar el for :)
+// hacer primero las funciones de salir :)
+// y la de si el usuario pone otra cosa que no haya programado le salte un error (comando desconocido):)
+// comando ayuda(help) para saber que comandos puede poner el usuario :)
 // comando info 
 // comando bytemaps 
 // comando dir 
 // comando rename 
 //comando cat (imprimir)
 //comando remove
+
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre){
+   int i,j;
+   unsigned int blnumber;
+   EXT_DATOS datosFichero[MAX_NUMS_BLOQUE_INODO];
+   i= buscaFich(directorio,inodos,nombre);
+   if(i>0){
+      j=0;
+      do{
+         blnumber= inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[j];
+         if(blnumber!= NULL_BLOQUE){
+            datosFichero[j]=memdatos[blnumber-PRIM_BLOQUE_DATOS];
+         }
+         j++;
+      }while((blnumber!= NULL_BLOQUE)&& (j<MAX_NUMS_BLOQUE_INODO));
+      printf("%s\n",datosFichero);
+   }
+   return -1;// codigo error no se encuentra
+}
