@@ -4,6 +4,7 @@
 #include "cabeceras.h"
 
 #define LONGITUD_COMANDO 100
+#define SIZE_BLOQUE 512
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
 int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argumento2);
