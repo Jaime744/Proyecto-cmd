@@ -29,7 +29,7 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
              EXT_DATOS *memdatos, char *nombre);
 int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
               char *nombre);
-void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE inodo);
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE *inodo);
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
@@ -138,7 +138,7 @@ int main()
 
          if (strcmp(orden,"dir")==0){
             
-            //printf("has introducido dir\n");
+            printf("has introducido dir\n");
             Directorio(directorio,&ext_blq_inodos,&inodo);
             continue;  
          }
@@ -171,9 +171,15 @@ void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_I
    for(int i=0;i<MAX_FICHEROS;i++){
       if(directorio[i].dir_nfich[0] != '\0' && directorio[i].dir_inodo != -1){
          int indice = directorio[i].dir_inodo;
-         printf("%s  tamaño: %d inodos: %d ",directorio[i].dir_nfich,inodo[indice].size_fichero,indice);
+         if(indice>= 0 && indice<MAX_INODOS){
+            printf("Nombre: %s  tamaño: %d inodos: %d ",directorio[i].dir_nfich,inodo[indice].size_fichero,indice);
+         }else{
+            printf("Error: indice del inodo Invalido para el archivo '%s'. Indice: %d\n",directorio[i].dir_nfich,indice);
+         }
+         
       }
    }
+   printf("termine\n"); // esto lo hace pero lo otro no jiji
 }
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
