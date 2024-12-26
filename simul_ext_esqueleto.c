@@ -59,7 +59,7 @@ int main()
      //memcpy(&ext_superblock,(EXT_SIMPLE_SUPERBLOCK *)&datosfich[0], SIZE_BLOQUE);
      //memcpy(&directorio,(EXT_ENTRADA_DIR *)&datosfich[3], SIZE_BLOQUE);
      memcpy(&ext_bytemaps,(EXT_BLQ_INODOS *)&datosfich[1], SIZE_BLOQUE);
-     //memcpy(&ext_blq_inodos,(EXT_BLQ_INODOS *)&datosfich[2], SIZE_BLOQUE);
+     memcpy(&ext_blq_inodos,(EXT_BLQ_INODOS *)&datosfich[2], SIZE_BLOQUE);
      //memcpy(&memdatos,(EXT_DATOS *)&datosfich[4],MAX_BLOQUES_DATOS*SIZE_BLOQUE);
      
     int apagado=-1;
@@ -137,7 +137,8 @@ int main()
 
          if (strcmp(orden,"dir")==0){
             
-            printf("has introducido dir\n");
+            //printf("has introducido dir\n");
+            Directorio(directorio,&ext_blq_inodos);
             continue;  
          }
          if (strcmp(orden,"salir")==0){
@@ -169,7 +170,7 @@ void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos){
    for(int i=0;MAX_FICHEROS;i++){
       if(directorio[i].dir_nfich[0] != '\0' && directorio[i].dir_inodo != -1) {
          int indice = directorio[i].dir_inodo;
-         
+         printf("%s  tamaño: %d inodos: %d ",directorio[i].dir_nfich,inodos[indice].blq_inodos,indice);
       }
    }
 }
