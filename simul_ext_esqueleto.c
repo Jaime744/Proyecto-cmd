@@ -25,8 +25,7 @@ void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
 */
 int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
              EXT_DATOS *memdatos, char *nombre);
-int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-              char *nombre);
+int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre);
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE *inodo);
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo);
 int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich);
@@ -117,9 +116,13 @@ int main()
             continue;  
          }
          if (strcmp(orden,"cat")==0){
-            
-            printf("has introducido cat (imprimir)\n");
-            //Imprimir()
+            char nombre[LEN_NFICH];
+            printf("introduce el fichero que deseas imprimir: ");
+            fgets(nombre, LEN_NFICH,stdin);
+            nombre[strcspn(nombre,"\n")] = '\0';
+            //printf("%s\n",nombre);
+            //printf("has introducido cat (imprimir)\n");
+            Imprimir(directorio,&ext_blq_inodos,memdatos,nombre);
             continue;  
          }
          if (strcmp(orden,"help")==0){
@@ -127,7 +130,7 @@ int main()
             printf("Has introducido ayuda:\nPuedes poner los siguientes comandos:\n"
             "dir: para ver los directorios\nbytemaps: para ver los bytemaps\n"
             "rename: para renombrar un fichero\nremove: para eliminar un fichero\n"
-            "info: para saber la info de los ficheros\ncopy: para copiar un archivo en otro\n"
+            "info: para saber la info de los ficheros\ncopy: para copiar un archivo en otro\ncat: imprime el fichero que le pidas\n"
             "salir: para abandonar el programa\n");
             continue;  
          }
@@ -171,7 +174,7 @@ int main()
 // y la de si el usuario pone otra cosa que no haya programado le salte un error (comando desconocido):)
 // comando ayuda(help) para saber que comandos puede poner el usuario :)
 // comando info 
-// comando bytemaps hecho
+// comando bytemaps hecho pero no da igual que a los demas
 // comando dir casi hecho
 // comando rename 
 //comando cat (imprimir) echo pero no implementado 
@@ -179,7 +182,7 @@ int main()
 
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE *inodo ){ // tengo que poner la referencia al struct el EXT_SIMPLE_INODE porque es donde esta el size 
 
-   for(int i=0;i<MAX_FICHEROS;i++){
+   for(int i=1;i<MAX_FICHEROS;i++){
       if(directorio[i].dir_nfich[0] != '\0' && directorio[i].dir_inodo != -1){
          int indice = directorio[i].dir_inodo;
          if(indice>= 0 && indice<MAX_INODOS){
@@ -188,10 +191,8 @@ void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_I
          }else{
             printf("Error: indice del inodo Invalido para el archivo '%s'. Indice: %d\n",directorio[i].dir_nfich,indice);
          }
-         
       }
    }
-   printf("termine\n"); // esto lo hace pero lo otro no jiji
 }
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
@@ -199,7 +200,7 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
    printf("Inodos: ");
    for(int i=0;contadorBits<25;i++){
       for(int j=0;contadorBits<25 && j<8;j++){
-         if((ext_bytemaps->bmap_inodos[i]&(1>>j))!=0){
+         if((ext_bytemaps->bmap_inodos[i]&(1>>j))!=0){ // cambiar a que printee ext_bytemaps en esa posicion 
             printf("1");
          }else{
             printf("0");
@@ -226,16 +227,16 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo){
    printf("hola");
 }
+int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre){
+   int numerin=0;
+   for(int i=0;i<MAX_FICHEROS;i++){
+      if(strcmp(nombre,directorio[i].dir_nfich)==0)
+      numerin=i;
+   }
+   return numerin;
+}
 
 
-
-
-
-
-
-
-
-/*
 
 int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre){
    int i,j;
@@ -251,8 +252,8 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memd
          }
          j++;
       }while((blnumber!= NULL_BLOQUE)&& (j<MAX_NUMS_BLOQUE_INODO));
-      printf("%s\n",datosFichero);
+      printf("%s\n",datosFichero[j].dato);
    }
    return -1;// codigo error no se encuentra
 }
-*/
+
