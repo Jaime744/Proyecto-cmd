@@ -12,15 +12,12 @@ int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argu
 void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup);
 
 
-int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-              char *nombreantiguo, char *nombrenuevo);
+
 
 int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
            EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,
            char *nombre,  FILE *fich);
-int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
-           EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,
-           EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich);
+
 void Grabarinodosydirectorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, FILE *fich);
 void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
@@ -31,6 +28,9 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,
 int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
               char *nombre);
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE *inodo);
+int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo);
+int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich);
+// para copiar necesito las funciones comentadas de arriba 
 int main()
 {
 	 char *comando[LONGITUD_COMANDO];
@@ -171,10 +171,10 @@ int main()
 // y la de si el usuario pone otra cosa que no haya programado le salte un error (comando desconocido):)
 // comando ayuda(help) para saber que comandos puede poner el usuario :)
 // comando info 
-// comando bytemaps 
-// comando dir 
+// comando bytemaps hecho
+// comando dir casi hecho
 // comando rename 
-//comando cat (imprimir)
+//comando cat (imprimir) echo pero no implementado 
 //comando remove
 
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE *inodo ){ // tengo que poner la referencia al struct el EXT_SIMPLE_INODE porque es donde esta el size 
@@ -223,7 +223,9 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
    }
    printf("\n");
 }
-
+int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo){
+   printf("hola");
+}
 
 
 
