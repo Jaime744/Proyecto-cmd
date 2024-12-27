@@ -169,11 +169,11 @@ int main()
      }
      return 0;
 }
-
+// Funciones para acabar esta noche a ser posible
 // comando rename 
-//comando cat (imprimir) echo pero no implementado porque no imprime
 //comando remove
 //comando copy 
+
 
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos) {
     for (int i = 0; i < MAX_FICHEROS; i++) {
@@ -239,13 +239,3 @@ int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre){
    }
    return -1;
 }
-
-/*for (int i = 0; i < MAX_NUMS_BLOQUE_INODO; i++) {
-        unsigned short int num_bloque = inodo.i_nbloque[i];
-        if (num_bloque == NULL_BLOQUE) {
-            break;
-        }
-        printf("%s", memdatos[num_bloque - PRIM_BLOQUE_DATOS].dato);
-    }
-    printf("\n");
-    return 0;*/
