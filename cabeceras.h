@@ -5,7 +5,7 @@
 
 #define SIZE_BLOQUE 512
 #define MAX_INODOS 24
-#define MAX_FICHEROS 26// si no modifico este valor la funcion dir no funciona 
+#define MAX_FICHEROS 20// si no modifico este valor la funcion dir no funciona 
 #define MAX_BLOQUES_DATOS 96
 #define PRIM_BLOQUE_DATOS 4
 #define MAX_BLOQUES_PARTICION MAX_BLOQUES_DATOS+PRIM_BLOQUE_DATOS

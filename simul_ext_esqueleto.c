@@ -23,7 +23,8 @@ void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
 void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
 */
-int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre);
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre,EXT_SIMPLE_INODE inodo);
+//int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre);
 int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre);
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo);
@@ -122,7 +123,7 @@ int main()
             nombre[strcspn(nombre,"\n")] = '\0';
             //printf("%s\n",nombre);
             //printf("has introducido cat (imprimir)\n");
-            Imprimir(directorio,&ext_blq_inodos,memdatos,nombre);
+            Imprimir(directorio,&ext_blq_inodos,memdatos,nombre,inodo);
             continue;  
          }
          if (strcmp(orden,"help")==0){
@@ -182,8 +183,6 @@ void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos) {
         }
     }
 }
-
-
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
    int contadorBits=0;
    printf("Inodos: ");
@@ -201,39 +200,52 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo){
    printf("hola");
 }
-int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre){
-   int numerin=0;
-   for(int i=0;i<MAX_FICHEROS;i++){
-      if(strcmp(nombre,directorio[i].dir_nfich)==0)
-      numerin=i;
-   }
-   return numerin;
-}
+
 void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup){
    printf("Superbloque: \nNumero total de inodos: %u\nNumero total de bloques: %u\nBloques libres: %u\nInodos libres: %u"
          "\nPrimer bloque de datos: %u\nTamaño de bloque: %u\n"
          " ",psup->s_inodes_count,psup->s_blocks_count,psup->s_free_blocks_count,psup->s_free_inodes_count,psup->s_first_data_block,psup->s_block_size);
 }
 
-
-
-
-int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre){
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre,EXT_SIMPLE_INODE inodo){
    int i,j;
    unsigned int blnumber;
-   EXT_DATOS datosFichero[MAX_NUMS_BLOQUE_INODO];
+   //EXT_DATOS datosFichero[MAX_NUMS_BLOQUE_INODO];
    i= BuscaFich(directorio,inodos,nombre);
-   if(i>0){
+   if(i==-1){
+      printf("No se encontro el archivo\n");
+   }
+   // no va el imprimir pero si va el fichewro no encontrado
+    if(i>0){
       j=0;
       do{
          blnumber= inodos->blq_inodos[directorio[i].dir_inodo].i_nbloque[j];
          if(blnumber!= NULL_BLOQUE){
-            datosFichero[j]=memdatos[blnumber-PRIM_BLOQUE_DATOS];
+            //datosFichero[j]=memdatos[blnumber-PRIM_BLOQUE_DATOS];
+            printf("%s ",memdatos[blnumber-PRIM_BLOQUE_DATOS].dato);
+            j++;
          }
-         j++;
+         
       }while((blnumber!= NULL_BLOQUE)&& (j<MAX_NUMS_BLOQUE_INODO));
-      printf("%s\n",datosFichero[j].dato);
+      printf("\n");
    }
    return -1;// codigo error no se encuentra
 }
+int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre){
+   int numerin=0;
+   for(int i=0;i<MAX_FICHEROS;i++){
+      if(strcmp(nombre,directorio[i].dir_nfich)==0)
+      return i;
+   }
+   return -1;
+}
 
+/*for (int i = 0; i < MAX_NUMS_BLOQUE_INODO; i++) {
+        unsigned short int num_bloque = inodo.i_nbloque[i];
+        if (num_bloque == NULL_BLOQUE) {
+            break;
+        }
+        printf("%s", memdatos[num_bloque - PRIM_BLOQUE_DATOS].dato);
+    }
+    printf("\n");
+    return 0;*/
