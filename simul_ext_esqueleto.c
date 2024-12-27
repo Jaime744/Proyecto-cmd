@@ -173,10 +173,8 @@ int main()
 // comando rename 
 //comando remove
 //comando copy 
-
-
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos) {
-    for (int i = 0; i < MAX_FICHEROS; i++) {
+    for (int i = 1; i < MAX_FICHEROS; i++) {
         if (directorio[i].dir_inodo != NULL_INODO && directorio[i].dir_nfich[0] != '\0') {
             EXT_SIMPLE_INODE *inodo_actual = &inodos->blq_inodos[directorio[i].dir_inodo];
             printf("Nombre: %s  Tamaño: %u bytes  Inodo: %d\n",directorio[i].dir_nfich,inodo_actual->size_fichero,directorio[i].dir_inodo);
@@ -216,6 +214,7 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memd
       printf("No se encontro el archivo\n");
    }
    // no va el imprimir pero si va el fichewro no encontrado
+   
     if(i>0){
       j=0;
       do{
