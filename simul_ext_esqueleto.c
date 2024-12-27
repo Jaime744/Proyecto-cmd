@@ -9,7 +9,7 @@
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
 int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argumento2);
 /*
-void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup);
+
 
 
 
@@ -23,11 +23,11 @@ void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
 void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
 */
-int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos, 
-             EXT_DATOS *memdatos, char *nombre);
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre);
 int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre);
-void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE *inodo);
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo);
+void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup);
 int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich);
 // para copiar necesito las funciones comentadas de arriba 
 int main()
@@ -106,13 +106,13 @@ int main()
 
          // todas las ordenes van a tener esta estructura
          if (strcmp(orden,"info")==0){
-            Printbytemaps(&ext_bytemaps);
+            LeeSuperBloque(&ext_superblock);
            // printf("has introducido info\n");
             continue;  
          } 
          if (strcmp(orden,"bytemaps")==0){
-            
-            printf("has introducido bytemaps\n");
+            Printbytemaps(&ext_bytemaps);
+            //printf("has introducido bytemaps\n");
             continue;  
          }
          if (strcmp(orden,"cat")==0){
@@ -153,7 +153,7 @@ int main()
          if (strcmp(orden,"dir")==0){
             
             printf("has introducido dir\n");
-            Directorio(directorio,&ext_blq_inodos,&inodo);
+            Directorio(directorio,&ext_blq_inodos);
             continue;  
          }
          if (strcmp(orden,"salir")==0){
@@ -169,61 +169,35 @@ int main()
      return 0;
 }
 
-// ajustar el for :)
-// hacer primero las funciones de salir :)
-// y la de si el usuario pone otra cosa que no haya programado le salte un error (comando desconocido):)
-// comando ayuda(help) para saber que comandos puede poner el usuario :)
-// comando info 
-// comando bytemaps hecho pero no da igual que a los demas
-// comando dir casi hecho
 // comando rename 
-//comando cat (imprimir) echo pero no implementado 
+//comando cat (imprimir) echo pero no implementado porque no imprime
 //comando remove
+//comando copy 
 
-void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_SIMPLE_INODE *inodo ){ // tengo que poner la referencia al struct el EXT_SIMPLE_INODE porque es donde esta el size 
-
-   for(int i=1;i<MAX_FICHEROS;i++){
-      if(directorio[i].dir_nfich[0] != '\0' && directorio[i].dir_inodo != -1){
-         int indice = directorio[i].dir_inodo;
-         if(indice>= 0 && indice<MAX_INODOS){
-            printf("Nombre: %s  tamaño: %d inodos: %d ",directorio[i].dir_nfich,inodo[indice].size_fichero,indice);
-            printf("\n");
-         }else{
-            printf("Error: indice del inodo Invalido para el archivo '%s'. Indice: %d\n",directorio[i].dir_nfich,indice);
-         }
-      }
-   }
+void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos) {
+    for (int i = 0; i < MAX_FICHEROS; i++) {
+        if (directorio[i].dir_inodo != NULL_INODO && directorio[i].dir_nfich[0] != '\0') {
+            EXT_SIMPLE_INODE *inodo_actual = &inodos->blq_inodos[directorio[i].dir_inodo];
+            printf("Nombre: %s  Tamaño: %u bytes  Inodo: %d\n",directorio[i].dir_nfich,inodo_actual->size_fichero,directorio[i].dir_inodo);
+        }
+    }
 }
+
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
    int contadorBits=0;
    printf("Inodos: ");
-   for(int i=0;contadorBits<25;i++){
-      for(int j=0;contadorBits<25 && j<8;j++){
-         if((ext_bytemaps->bmap_inodos[i]&(1>>j))!=0){ // cambiar a que printee ext_bytemaps en esa posicion 
-            printf("1");
-         }else{
-            printf("0");
-         }
-         contadorBits++;
-      }
+   for(int i=0;i<MAX_INODOS;i++){
+      printf("%d ",ext_bytemaps->bmap_inodos[i]);
    }
    printf("\n");
-   contadorBits=0;
-
    printf("Bloques[0-25]: ");
-   for(int i=0;contadorBits<25;i++){
-      for(int j=0;contadorBits<25 && j<8;j++){
-         if((ext_bytemaps->bmap_bloques[i]&(1>>j))!=0){
-            printf("1");
-         }else{
-            printf("0");
-         }
-         contadorBits++;
-      }
+   for(int j=0;j<25;j++){
+      printf("%d ",ext_bytemaps->bmap_bloques[j]);
    }
    printf("\n");
 }
+
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo){
    printf("hola");
 }
@@ -235,6 +209,12 @@ int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre){
    }
    return numerin;
 }
+void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup){
+   printf("Superbloque: \nNumero total de inodos: %u\nNumero total de bloques: %u\nBloques libres: %u\nInodos libres: %u"
+         "\nPrimer bloque de datos: %u\nTamaño de bloque: %u\n"
+         " ",psup->s_inodes_count,psup->s_blocks_count,psup->s_free_blocks_count,psup->s_free_inodes_count,psup->s_first_data_block,psup->s_block_size);
+}
+
 
 
 
