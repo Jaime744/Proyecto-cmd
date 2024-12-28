@@ -127,6 +127,7 @@ int main()
          }
          if (strcmp(orden,"remove")==0){
             char nombreEliminar[LEN_NFICH];
+            printf("Introduce el archivo que quieres eliminar: ");
             fgets(nombreEliminar, LEN_NFICH,stdin);
             nombreEliminar[strcspn(nombreEliminar,"\n")] = '\0';
             Borrar(directorio,&ext_blq_inodos,&ext_bytemaps,&ext_superblock,nombreEliminar,fent);
@@ -343,10 +344,14 @@ int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodo
 }
 int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,char *nombre,  FILE *fich){
       int numerin= BuscaFich(directorio,inodos,nombre);
+
       if(numerin==-1){
       printf("No se encontro el archivo\n");
+      return -1;
    }
-   EXT_SIMPLE_INODE *inodo =&inodos->blq_inodos[numerin];
+
+   int numerin2=directorio[numerin].dir_inodo;
+   EXT_SIMPLE_INODE *inodo =&inodos->blq_inodos[numerin2];
 
    for(int i=0;i<MAX_NUMS_BLOQUE_INODO;i++){
       int bloque = inodo->i_nbloque[i];
@@ -362,7 +367,7 @@ int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
       inodo->i_nbloque[j]=NULL_BLOQUE;
    }
 
-   ext_bytemaps->bmap_inodos[numerin]=0;
+   ext_bytemaps->bmap_inodos[numerin2]=0;
    ext_superblock->s_free_inodes_count++;
 
    GrabarSuperBloque(ext_superblock, fich);
