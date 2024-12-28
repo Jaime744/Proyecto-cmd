@@ -136,8 +136,13 @@ int main()
             continue;  
          }
          if (strcmp(orden,"rename")==0){
-            
-            printf("has introducido rename\n");
+            char nombreantiguo[LEN_NFICH];
+            char nombrenuevo[LEN_NFICH];
+            printf("introduce el fichero que deseas renombrar: ");
+            fgets(nombreantiguo, LEN_NFICH,stdin);
+            printf("introduce el nuevo nombre del fichero: ");
+            fgets(nombrenuevo, LEN_NFICH,stdin);
+            Renombrar(directorio, &ext_blq_inodos,nombreantiguo,nombrenuevo);
             continue;  
          }
          if (strcmp(orden,"copy")==0){
@@ -153,7 +158,7 @@ int main()
 
          if (strcmp(orden,"dir")==0){
             
-            printf("has introducido dir\n");
+            //printf("has introducido dir\n");
             Directorio(directorio,&ext_blq_inodos);
             continue;  
          }
@@ -195,9 +200,7 @@ void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
    printf("\n");
 }
 
-int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo){
-   printf("hola");
-}
+
 
 void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup){
    printf("Superbloque: \nNumero total de inodos: %u\nNumero total de bloques: %u\nBloques libres: %u\nInodos libres: %u"
@@ -237,4 +240,19 @@ int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre){
       return i;
    }
    return -1;
+}
+
+int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo){
+   for(int i=0;i<MAX_FICHEROS;i++){
+      if(strcmp(nombreantiguo,directorio[i].dir_nfich)==0){
+         if (strlen(nombrenuevo) >= LEN_NFICH) {
+                printf("Error: El nuevo nombre es demasiado largo");
+                return -1;
+            }
+         strcpy(directorio[i].dir_nfich,nombrenuevo);
+         printf("El nombre se ha cambiado correctamente\n");
+         return 0;
+      }
+   }
+   printf("No se ha encontrado el archivo y por lo tanto no se ha cambiado el nombre\n");
 }
