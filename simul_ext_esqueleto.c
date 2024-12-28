@@ -174,8 +174,7 @@ int main()
      }
      return 0;
 }
-// Funciones para acabar esta noche a ser posible
-// comando rename 
+
 //comando remove
 //comando copy 
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos) {
