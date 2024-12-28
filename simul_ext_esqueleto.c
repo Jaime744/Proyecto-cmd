@@ -126,8 +126,10 @@ int main()
             continue;  
          }
          if (strcmp(orden,"remove")==0){
-            
-            printf("has introducido remove\n");
+            char nombreEliminar[LEN_NFICH];
+            fgets(nombreEliminar, LEN_NFICH,stdin);
+            nombreEliminar[strcspn(nombreEliminar,"\n")] = '\0';
+            Borrar(directorio,&ext_blq_inodos,&ext_bytemaps,&ext_superblock,nombreEliminar,fent);
             continue;  
          }
          if (strcmp(orden,"dir")==0){
@@ -257,7 +259,6 @@ void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich){
    fwrite(ext_superblock,SIZE_BLOQUE,1,fich);
    printf(":)\n");
 }
-
 int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,char *nombreOriginal,char* nombreCopia,  FILE *fich){
 
    // inicializo variables 
@@ -270,7 +271,7 @@ int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodo
     
    
    // comprobaciones
-   if(numerin<0){
+   if(numerin==-1){
       printf("No se encuentra el archivo %s\n",nombreOriginal);
       return -1;
    }
@@ -318,7 +319,7 @@ int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodo
         int bloqueOrigen = inodoOrigen->i_nbloque[k];
         int bloqueDestino = bloquesAsigandos[k];
         inodos->blq_inodos[inodoLibre].i_nbloque[k] = bloqueDestino;
-        memcpy(memdatos[bloqueDestino].dato, memdatos[bloqueOrigen].dato,SIZE_BLOQUE);// copia el bloque de los datos       
+        memcpy(memdatos[bloqueDestino].dato, memdatos[bloqueOrigen].dato,SIZE_BLOQUE);    
     }
    
    inodoDestino->size_fichero=inodoOrigen->size_fichero;// tiene que ser igual de tamaño 
@@ -340,3 +341,35 @@ int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodo
 
    printf("Archivo %s ha sido copiado como %s con exito\n",nombreOriginal,nombreCopia);
 }
+int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,char *nombre,  FILE *fich){
+      int numerin= BuscaFich(directorio,inodos,nombre);
+      if(numerin==-1){
+      printf("No se encontro el archivo\n");
+   }
+   EXT_SIMPLE_INODE *inodo =&inodos->blq_inodos[numerin];
+
+   for(int i=0;i<MAX_NUMS_BLOQUE_INODO;i++){
+      int bloque = inodo->i_nbloque[i];
+      if(bloque!=NULL_BLOQUE){
+         ext_bytemaps->bmap_bloques[bloque]=0;
+         ext_superblock->s_free_blocks_count++;
+         inodo->i_nbloque[i]=NULL_BLOQUE;
+      }
+   }
+
+   inodo->size_fichero=0;
+   for(int j=0;j<MAX_NUMS_BLOQUE_INODO;j++){
+      inodo->i_nbloque[j]=NULL_BLOQUE;
+   }
+
+   ext_bytemaps->bmap_inodos[numerin]=0;
+   ext_superblock->s_free_inodes_count++;
+
+   GrabarSuperBloque(ext_superblock, fich);
+    GrabarByteMaps(ext_bytemaps, fich);
+    Grabarinodosydirectorio(directorio, inodos, fich);
+
+   printf("El fichero %s se ha borrado con exito\n",nombre);
+
+}
+
