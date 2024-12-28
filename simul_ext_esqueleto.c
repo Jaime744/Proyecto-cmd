@@ -7,6 +7,8 @@
 #define SIZE_BLOQUE 512
 
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps);
+int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre);
+int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre,EXT_SIMPLE_INODE inodo);
 int ComprobarComando(char *strcomando, char *orden, char *argumento1, char *argumento2);
 int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, 
           EXT_SIMPLE_SUPERBLOCK *ext_superblock,char *nombreOriginal,char* nombreCopia,  FILE *fich);
@@ -17,14 +19,10 @@ void Grabarinodosydirectorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos
 void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich);
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich);
 void GrabarDatos(EXT_DATOS *memdatos, FILE *fich);
-int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre,EXT_SIMPLE_INODE inodo);
-int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre);
 void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos);
 int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombreantiguo, char *nombrenuevo);
 void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup);
 void helpInformacion();
-int Copiar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,EXT_DATOS *memdatos, char *nombreorigen, char *nombredestino,  FILE *fich);
-
 
 
 
@@ -104,9 +102,10 @@ int main()
 
             printf("introduce el fichero que deseas renombrar: ");
             fgets(nombreantiguo, LEN_NFICH,stdin);
+            nombreantiguo[strcspn(nombreantiguo,"\n")] = '\0';
             printf("introduce el nuevo nombre del fichero: ");
             fgets(nombrenuevo, LEN_NFICH,stdin);
-
+            nombrenuevo[strcspn(nombrenuevo,"\n")] = '\0';
             Renombrar(directorio, &ext_blq_inodos,nombreantiguo,nombrenuevo);
             continue;  
          }
@@ -114,11 +113,13 @@ int main()
 
             char nombreOriginal[LEN_NFICH];
             char nombreCopia[LEN_NFICH];
-
-            printf("introduce el fichero que deseas renombrar: ");
+            printf("introduce el fichero que deseas copiar: ");
             fgets(nombreOriginal, LEN_NFICH,stdin);
+            nombreOriginal[strcspn(nombreOriginal,"\n")] = '\0';
             printf("introduce el nuevo nombre del fichero: ");
             fgets(nombreCopia, LEN_NFICH,stdin);
+            nombreCopia[strcspn(nombreCopia,"\n")] = '\0';
+            printf("nombre original : %s nombre copia %s",nombreOriginal,nombreCopia);
 
             copia(directorio,memdatos,&ext_blq_inodos,&ext_bytemaps,&ext_superblock,nombreOriginal,nombreCopia,fent);
 
@@ -134,7 +135,7 @@ int main()
             continue;  
          }
          if (strcmp(orden,"salir")==0){
-            GrabarDatos(&memdatos,fent);
+            GrabarDatos(memdatos,fent);
             printf("Adios\n");
             fclose(fent);
             apagado=1;
@@ -151,9 +152,15 @@ void Directorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos) {
     for (int i = 1; i < MAX_FICHEROS; i++) {
         if (directorio[i].dir_inodo != NULL_INODO && directorio[i].dir_nfich[0] != '\0') {
             EXT_SIMPLE_INODE *inodo_actual = &inodos->blq_inodos[directorio[i].dir_inodo];
-            printf("Nombre: %s  Tamaño: %u bytes  Inodo: %d\n",directorio[i].dir_nfich,inodo_actual->size_fichero,directorio[i].dir_inodo);
+            printf("Nombre: %s  Tamaño: %u bytes  Inodo: %d  Bloques:",directorio[i].dir_nfich,inodo_actual->size_fichero,directorio[i].dir_inodo);
+            
+            for(int k=0; k<MAX_NUMS_BLOQUE_INODO && inodo_actual->i_nbloque[k] != NULL_BLOQUE;k++){
+               printf(" %d",inodo_actual->i_nbloque[k]);
+            }
+            printf("\n");
         }
     }
+
 }
 void Printbytemaps(EXT_BYTE_MAPS *ext_bytemaps){
    int contadorBits=0;
@@ -180,7 +187,6 @@ void LeeSuperBloque(EXT_SIMPLE_SUPERBLOCK *psup){
          "\nPrimer bloque de datos: %u\nTamaño de bloque: %u\n"
          " ",psup->s_inodes_count,psup->s_blocks_count,psup->s_free_blocks_count,psup->s_free_inodes_count,psup->s_first_data_block,psup->s_block_size);
 }
-
 int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memdatos, char *nombre,EXT_SIMPLE_INODE inodo){
    int i,j;
    unsigned int blnumber;
@@ -207,7 +213,7 @@ int Imprimir(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_DATOS *memd
    return -1;// codigo error no se encuentra
 }
 int BuscaFich(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombre){
-   int numerin=0;
+   //int numerin=0;
    for(int i=0;i<MAX_FICHEROS;i++){
       if(strcmp(nombre,directorio[i].dir_nfich)==0)
       return i;
@@ -229,7 +235,6 @@ int Renombrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,char *nombrean
    }
    printf("No se ha encontrado el archivo y por lo tanto no se ha cambiado el nombre\n");
 }
-
 void GrabarDatos(EXT_DATOS *memdatos, FILE *fich){
    fseek(fich,4*SIZE_BLOQUE,SEEK_SET);
    fwrite(memdatos,SIZE_BLOQUE,MAX_BLOQUES_DATOS,fich);
@@ -256,26 +261,27 @@ void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich){
 int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,char *nombreOriginal,char* nombreCopia,  FILE *fich){
 
    // inicializo variables 
-   int numerin=BuscaFich(directorio,inodos,nombreOriginal);
+      int numerin=BuscaFich(directorio,inodos,nombreOriginal);
     int numerinVerificacion=BuscaFich(directorio,inodos,nombreCopia);
     int inodoLibre=-1;
-    int bloqueNecesarios=inodos->blq_inodos[directorio[numerin].dir_inodo].size_fichero/SIZE_BLOQUE + (inodos->blq_inodos[directorio[numerin].dir_inodo].size_fichero %SIZE_BLOQUE !=0);
+    int bloqueNecesarios;
     int bloquesAsigandos[MAX_NUMS_BLOQUE_INODO]={0};
     int bloquesEncontrados=0;
-    int bloqueOrigen=-1;
-    int bloqueDestino=-1;
-
+    
+   
    // comprobaciones
    if(numerin<0){
-      printf("No se encuentra el archivo\n");
+      printf("No se encuentra el archivo %s\n",nombreOriginal);
       return -1;
    }
    //compruebo si el usuario me ha introducido un nombre ya existente
   
    if(numerinVerificacion>=0){
-      printf("El archivo ya existe, intetelo con otro nombre\n");
+      printf("El archivo %s ya existe, intetelo con otro nombre\n",nombreCopia);
       return -1;
    }
+    EXT_SIMPLE_INODE *inodoOrigen=&inodos->blq_inodos[directorio[numerin].dir_inodo];
+    bloqueNecesarios=inodos->blq_inodos[directorio[numerin].dir_inodo].size_fichero/SIZE_BLOQUE + (inodos->blq_inodos[directorio[numerin].dir_inodo].size_fichero %SIZE_BLOQUE !=0);
 
    // encontrar inodos libres
    for(int i=0;i<MAX_INODOS;i++){
@@ -300,29 +306,28 @@ int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodo
       }
    }
 
-   if(bloquesEncontrados > bloqueNecesarios){
+   if(bloquesEncontrados < bloqueNecesarios){
       printf("No hay bloques suficientes\n");
       return -1;
    }
 
-   EXT_SIMPLE_INODE *inodoOrigen=&inodos->blq_inodos[directorio[numerin].dir_inodo];
-   EXT_SIMPLE_INODE * inodoDestino=&inodos->blq_inodos[directorio[numerinVerificacion].dir_inodo];
-
+  
+   EXT_SIMPLE_INODE * inodoDestino=&inodos->blq_inodos[inodoLibre];
 
    for (int k = 0; k < bloqueNecesarios; k++) {
-        int bloque_origen = inodoOrigen->i_nbloque[k];
-        int bloque_destino = bloquesAsigandos[k];
-        inodoDestino->i_nbloque[k] = bloqueDestino;
-        memcpy(memdatos[bloque_destino].dato, memdatos[bloque_origen].dato, SIZE_BLOQUE);// copia el bloque de los datos 
+        int bloqueOrigen = inodoOrigen->i_nbloque[k];
+        int bloqueDestino = bloquesAsigandos[k];
+        inodos->blq_inodos[inodoLibre].i_nbloque[k] = bloqueDestino;
+        memcpy(memdatos[bloqueDestino].dato, memdatos[bloqueOrigen].dato,SIZE_BLOQUE);// copia el bloque de los datos       
     }
-
    
-   inodoDestino->size_fichero=inodoOrigen->size_fichero;// tiene que ser igual de tamaño // cambiar de posicion 
+   inodoDestino->size_fichero=inodoOrigen->size_fichero;// tiene que ser igual de tamaño 
 
-    for (int i = 0; i < MAX_FICHEROS; i++) {
-        if (directorio[i].dir_inodo == NULL_INODO) { 
-            strcpy(directorio[i].dir_nfich, nombreCopia);
-            directorio[i].dir_inodo = inodoLibre;
+
+    for (int l = 0; l < MAX_FICHEROS; l++) {
+        if (directorio[l].dir_inodo == NULL_INODO) { 
+            strcpy(directorio[l].dir_nfich, nombreCopia);
+            directorio[l].dir_inodo = inodoLibre;
             break;
         }
     }
@@ -331,7 +336,7 @@ int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodo
     GrabarSuperBloque(ext_superblock, fich);
     GrabarByteMaps(ext_bytemaps, fich);
     Grabarinodosydirectorio(directorio, inodos, fich);
-    GrabarDatos(memdatos, fich);
+    //GrabarDatos(memdatos, fich);
 
-   pritnf("Archivo %s ha sido copiado como %s con exito\n",nombreOriginal,nombreOriginal);
+   printf("Archivo %s ha sido copiado como %s con exito\n",nombreOriginal,nombreCopia);
 }
