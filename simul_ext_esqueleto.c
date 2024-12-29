@@ -118,9 +118,7 @@ int main()
             nombreOriginal[strcspn(nombreOriginal,"\n")] = '\0';
             printf("introduce el nuevo nombre del fichero: ");
             fgets(nombreCopia, LEN_NFICH,stdin);
-            nombreCopia[strcspn(nombreCopia,"\n")] = '\0';
-            printf("nombre original : %s nombre copia %s",nombreOriginal,nombreCopia);
-
+            nombreCopia[strcspn(nombreCopia,"\n")] = '\0';   
             copia(directorio,memdatos,&ext_blq_inodos,&ext_bytemaps,&ext_superblock,nombreOriginal,nombreCopia,fent);
 
             continue;  
@@ -248,17 +246,14 @@ void Grabarinodosydirectorio(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos
    fwrite(inodos,SIZE_BLOQUE,1,fich);// y escribo los inodos 
    fseek(fich,3*SIZE_BLOQUE,SEEK_SET);// muevo el puntero al bloque del directorio 
    fwrite(directorio,SIZE_BLOQUE,1,fich);//escribo el directorio
-   printf(":)\n");
 }
 void GrabarByteMaps(EXT_BYTE_MAPS *ext_bytemaps, FILE *fich){
    fseek(fich,SIZE_BLOQUE,SEEK_SET); // mueve el puntero al bloque de los bytemaps 
    fwrite(ext_bytemaps,SIZE_BLOQUE,1,fich);// escribo los bytemaps 
-   printf(":)\n");
 }
 void GrabarSuperBloque(EXT_SIMPLE_SUPERBLOCK *ext_superblock, FILE *fich){
    fseek(fich,0 *SIZE_BLOQUE,SEEK_SET); // mueve el puntero al inicio del archivo
    fwrite(ext_superblock,SIZE_BLOQUE,1,fich);
-   printf(":)\n");
 }
 int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ext_bytemaps, EXT_SIMPLE_SUPERBLOCK *ext_superblock,char *nombreOriginal,char* nombreCopia,  FILE *fich){
 
@@ -320,7 +315,9 @@ int copia(EXT_ENTRADA_DIR *directorio,EXT_DATOS *memdatos, EXT_BLQ_INODOS *inodo
         int bloqueOrigen = inodoOrigen->i_nbloque[k];
         int bloqueDestino = bloquesAsigandos[k];
         inodos->blq_inodos[inodoLibre].i_nbloque[k] = bloqueDestino;
-        memcpy(memdatos[bloqueDestino].dato, memdatos[bloqueOrigen].dato,SIZE_BLOQUE);    
+       
+        memcpy(memdatos[bloqueDestino].dato, memdatos[bloqueOrigen].dato,SIZE_BLOQUE); 
+         printf("%s",memdatos[bloqueDestino].dato);   
     }
    
    inodoDestino->size_fichero=inodoOrigen->size_fichero;// tiene que ser igual de tamaño 
@@ -369,6 +366,11 @@ int Borrar(EXT_ENTRADA_DIR *directorio, EXT_BLQ_INODOS *inodos,EXT_BYTE_MAPS *ex
 
    ext_bytemaps->bmap_inodos[numerin2]=0;
    ext_superblock->s_free_inodes_count++;
+
+   directorio[numerin].dir_inodo = NULL_INODO;  // Desvincular el inodo
+    for (int i = 0; i < LEN_NFICH; i++) {
+        directorio[numerin].dir_nfich[i] = '\0';  // Limpiar cada carácter
+    }
 
    GrabarSuperBloque(ext_superblock, fich);
     GrabarByteMaps(ext_bytemaps, fich);
